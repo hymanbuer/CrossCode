@@ -1,0 +1,28 @@
+{
+    "path": "media/gui/buttons.png",
+    "width": 256,
+    "height": 256,
+    "spriteDict": {
+        "button-default": {
+            "type": "NinePatch",
+            "width": 16,
+            "height": 0,
+            "left": 8,
+            "top": 24,
+            "right": 8,
+            "bottom": 0,
+            "offsets": {
+                "default": {
+                    "x": 0,
+                    "y": 0
+                },
+                "pressed": {
+                    "x": 32,
+                    "y": 0
+                }
+            }
+        },
+        "button-default-focus-left": { "x": 64, "y": 0, "w": 16, "h": 24 },
+        "button-default-focus-right": { "x": 80, "y": 0, "w": 16, "h": 24 }
+    }
+}

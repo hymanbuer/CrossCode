@@ -1,0 +1,19 @@
+{
+    "path": "media/gui/loading.png",
+    "width": 384,
+    "height": 384,
+    "spriteDict": {
+        "lea": {
+            "type": "TileSheet",
+            "src": {
+                "x": 0,
+                "y": 0,
+                "w": 48,
+                "h": 48
+            },
+            "frames": 16,
+            "time": 0.05,
+            "xCount": 0
+        }
+    }
+}

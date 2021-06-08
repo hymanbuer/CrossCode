@@ -1,0 +1,19 @@
+{
+    "path": "media\/parallax\/title\/lea.png",
+    "width": 1104,
+    "height": 245,
+    "spriteDict": {
+        "lea": {
+            "type": "TileSheet",
+            "src": {
+                "x": 0,
+                "y": 0,
+                "w": 184,
+                "h": 245
+            },
+            "frames": 6,
+            "time": 0.15,
+            "xCount": 6
+        }
+    }
+}
