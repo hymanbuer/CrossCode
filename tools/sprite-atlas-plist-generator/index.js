@@ -18,8 +18,8 @@ async function handleFile(atlasDataPath, outDir) {
 }
 
 (async () => {
-    const outDir = Path.join(__dirname, 'out');
-    await Fs.emptyDir(outDir);
+    const outDir = Path.join(__dirname, '..', '..', 'assets');
+    // await Fs.emptyDir(outDir);
     await handleFile(Path.join(__dirname, 'data', 'buttons.json'), outDir);
     await handleFile(Path.join(__dirname, 'data', 'lea.json'), outDir);
     await handleFile(Path.join(__dirname, 'data', 'loading.json'), outDir);

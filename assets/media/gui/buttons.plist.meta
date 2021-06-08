@@ -1,0 +1,154 @@
+{
+  "ver": "1.0.6",
+  "importer": "sprite-atlas",
+  "imported": true,
+  "uuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec",
+  "files": [
+    ".plist",
+    ".json"
+  ],
+  "subMetas": {
+    "dbb82": {
+      "importer": "sprite-frame",
+      "uuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec@dbb82",
+      "displayName": "",
+      "id": "dbb82",
+      "name": "button-default-default",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 0,
+        "trimY": 0,
+        "width": 32,
+        "height": 24,
+        "rawWidth": 32,
+        "rawHeight": 24,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "9aef2719-3c1c-40d8-98bb-37e316549a04@6c48a",
+        "atlasUuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec"
+      },
+      "ver": "1.0.9",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "faf2c": {
+      "importer": "sprite-frame",
+      "uuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec@faf2c",
+      "displayName": "",
+      "id": "faf2c",
+      "name": "button-default-pressed",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 32,
+        "trimY": 0,
+        "width": 32,
+        "height": 24,
+        "rawWidth": 32,
+        "rawHeight": 24,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "9aef2719-3c1c-40d8-98bb-37e316549a04@6c48a",
+        "atlasUuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec"
+      },
+      "ver": "1.0.9",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "5505a": {
+      "importer": "sprite-frame",
+      "uuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec@5505a",
+      "displayName": "",
+      "id": "5505a",
+      "name": "button-default-focus-left",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 64,
+        "trimY": 0,
+        "width": 16,
+        "height": 24,
+        "rawWidth": 16,
+        "rawHeight": 24,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "9aef2719-3c1c-40d8-98bb-37e316549a04@6c48a",
+        "atlasUuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec"
+      },
+      "ver": "1.0.9",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "8e7f9": {
+      "importer": "sprite-frame",
+      "uuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec@8e7f9",
+      "displayName": "",
+      "id": "8e7f9",
+      "name": "button-default-focus-right",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 80,
+        "trimY": 0,
+        "width": 16,
+        "height": 24,
+        "rawWidth": 16,
+        "rawHeight": 24,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "9aef2719-3c1c-40d8-98bb-37e316549a04@6c48a",
+        "atlasUuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec"
+      },
+      "ver": "1.0.9",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "atlasTextureName": "buttons.png",
+    "format": 3,
+    "uuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec",
+    "textureUuid": "9aef2719-3c1c-40d8-98bb-37e316549a04@6c48a"
+  }
+}

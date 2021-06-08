@@ -1,0 +1,222 @@
+{
+  "ver": "1.0.6",
+  "importer": "sprite-atlas",
+  "imported": true,
+  "uuid": "ad93a204-9478-4c53-a0fa-7d8455afdb11",
+  "files": [
+    ".plist",
+    ".json"
+  ],
+  "subMetas": {
+    "39300": {
+      "importer": "sprite-frame",
+      "uuid": "ad93a204-9478-4c53-a0fa-7d8455afdb11@39300",
+      "displayName": "",
+      "id": "39300",
+      "name": "lea-00",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 0,
+        "trimY": 0,
+        "width": 184,
+        "height": 245,
+        "rawWidth": 184,
+        "rawHeight": 245,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "8fb479ad-e333-496e-90a0-d531df6c0eb3@6c48a",
+        "atlasUuid": "ad93a204-9478-4c53-a0fa-7d8455afdb11"
+      },
+      "ver": "1.0.9",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "051a1": {
+      "importer": "sprite-frame",
+      "uuid": "ad93a204-9478-4c53-a0fa-7d8455afdb11@051a1",
+      "displayName": "",
+      "id": "051a1",
+      "name": "lea-01",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 184,
+        "trimY": 0,
+        "width": 184,
+        "height": 245,
+        "rawWidth": 184,
+        "rawHeight": 245,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "8fb479ad-e333-496e-90a0-d531df6c0eb3@6c48a",
+        "atlasUuid": "ad93a204-9478-4c53-a0fa-7d8455afdb11"
+      },
+      "ver": "1.0.9",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "03d3c": {
+      "importer": "sprite-frame",
+      "uuid": "ad93a204-9478-4c53-a0fa-7d8455afdb11@03d3c",
+      "displayName": "",
+      "id": "03d3c",
+      "name": "lea-02",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 368,
+        "trimY": 0,
+        "width": 184,
+        "height": 245,
+        "rawWidth": 184,
+        "rawHeight": 245,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "8fb479ad-e333-496e-90a0-d531df6c0eb3@6c48a",
+        "atlasUuid": "ad93a204-9478-4c53-a0fa-7d8455afdb11"
+      },
+      "ver": "1.0.9",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1a73a": {
+      "importer": "sprite-frame",
+      "uuid": "ad93a204-9478-4c53-a0fa-7d8455afdb11@1a73a",
+      "displayName": "",
+      "id": "1a73a",
+      "name": "lea-03",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 552,
+        "trimY": 0,
+        "width": 184,
+        "height": 245,
+        "rawWidth": 184,
+        "rawHeight": 245,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "8fb479ad-e333-496e-90a0-d531df6c0eb3@6c48a",
+        "atlasUuid": "ad93a204-9478-4c53-a0fa-7d8455afdb11"
+      },
+      "ver": "1.0.9",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "05119": {
+      "importer": "sprite-frame",
+      "uuid": "ad93a204-9478-4c53-a0fa-7d8455afdb11@05119",
+      "displayName": "",
+      "id": "05119",
+      "name": "lea-04",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 736,
+        "trimY": 0,
+        "width": 184,
+        "height": 245,
+        "rawWidth": 184,
+        "rawHeight": 245,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "8fb479ad-e333-496e-90a0-d531df6c0eb3@6c48a",
+        "atlasUuid": "ad93a204-9478-4c53-a0fa-7d8455afdb11"
+      },
+      "ver": "1.0.9",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "b611e": {
+      "importer": "sprite-frame",
+      "uuid": "ad93a204-9478-4c53-a0fa-7d8455afdb11@b611e",
+      "displayName": "",
+      "id": "b611e",
+      "name": "lea-05",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 920,
+        "trimY": 0,
+        "width": 184,
+        "height": 245,
+        "rawWidth": 184,
+        "rawHeight": 245,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "8fb479ad-e333-496e-90a0-d531df6c0eb3@6c48a",
+        "atlasUuid": "ad93a204-9478-4c53-a0fa-7d8455afdb11"
+      },
+      "ver": "1.0.9",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "atlasTextureName": "lea.png",
+    "format": 3,
+    "uuid": "ad93a204-9478-4c53-a0fa-7d8455afdb11",
+    "textureUuid": "8fb479ad-e333-496e-90a0-d531df6c0eb3@6c48a"
+  }
+}
