@@ -2,7 +2,7 @@
   "ver": "1.0.6",
   "importer": "sprite-atlas",
   "imported": true,
-  "uuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec",
+  "uuid": "8b31f48f-304c-4ff0-851e-dc435894cb90",
   "files": [
     ".plist",
     ".json"
@@ -10,7 +10,7 @@
   "subMetas": {
     "dbb82": {
       "importer": "sprite-frame",
-      "uuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec@dbb82",
+      "uuid": "8b31f48f-304c-4ff0-851e-dc435894cb90@dbb82",
       "displayName": "",
       "id": "dbb82",
       "name": "button-default-default",
@@ -32,8 +32,8 @@
         "borderRight": 0,
         "packable": true,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "9aef2719-3c1c-40d8-98bb-37e316549a04@6c48a",
-        "atlasUuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec"
+        "imageUuidOrDatabaseUri": "e8ece2df-829d-493e-9d71-8ac051e1d0f9@6c48a",
+        "atlasUuid": "8b31f48f-304c-4ff0-851e-dc435894cb90"
       },
       "ver": "1.0.9",
       "imported": true,
@@ -44,7 +44,7 @@
     },
     "faf2c": {
       "importer": "sprite-frame",
-      "uuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec@faf2c",
+      "uuid": "8b31f48f-304c-4ff0-851e-dc435894cb90@faf2c",
       "displayName": "",
       "id": "faf2c",
       "name": "button-default-pressed",
@@ -54,7 +54,7 @@
         "rotated": false,
         "offsetX": 0,
         "offsetY": 0,
-        "trimX": 32,
+        "trimX": 34,
         "trimY": 0,
         "width": 32,
         "height": 24,
@@ -66,8 +66,8 @@
         "borderRight": 0,
         "packable": true,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "9aef2719-3c1c-40d8-98bb-37e316549a04@6c48a",
-        "atlasUuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec"
+        "imageUuidOrDatabaseUri": "e8ece2df-829d-493e-9d71-8ac051e1d0f9@6c48a",
+        "atlasUuid": "8b31f48f-304c-4ff0-851e-dc435894cb90"
       },
       "ver": "1.0.9",
       "imported": true,
@@ -78,7 +78,7 @@
     },
     "5505a": {
       "importer": "sprite-frame",
-      "uuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec@5505a",
+      "uuid": "8b31f48f-304c-4ff0-851e-dc435894cb90@5505a",
       "displayName": "",
       "id": "5505a",
       "name": "button-default-focus-left",
@@ -88,8 +88,8 @@
         "rotated": false,
         "offsetX": 0,
         "offsetY": 0,
-        "trimX": 64,
-        "trimY": 0,
+        "trimX": 0,
+        "trimY": 26,
         "width": 16,
         "height": 24,
         "rawWidth": 16,
@@ -100,8 +100,8 @@
         "borderRight": 0,
         "packable": true,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "9aef2719-3c1c-40d8-98bb-37e316549a04@6c48a",
-        "atlasUuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec"
+        "imageUuidOrDatabaseUri": "e8ece2df-829d-493e-9d71-8ac051e1d0f9@6c48a",
+        "atlasUuid": "8b31f48f-304c-4ff0-851e-dc435894cb90"
       },
       "ver": "1.0.9",
       "imported": true,
@@ -112,7 +112,7 @@
     },
     "8e7f9": {
       "importer": "sprite-frame",
-      "uuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec@8e7f9",
+      "uuid": "8b31f48f-304c-4ff0-851e-dc435894cb90@8e7f9",
       "displayName": "",
       "id": "8e7f9",
       "name": "button-default-focus-right",
@@ -122,8 +122,8 @@
         "rotated": false,
         "offsetX": 0,
         "offsetY": 0,
-        "trimX": 80,
-        "trimY": 0,
+        "trimX": 18,
+        "trimY": 26,
         "width": 16,
         "height": 24,
         "rawWidth": 16,
@@ -134,8 +134,8 @@
         "borderRight": 0,
         "packable": true,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "9aef2719-3c1c-40d8-98bb-37e316549a04@6c48a",
-        "atlasUuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec"
+        "imageUuidOrDatabaseUri": "e8ece2df-829d-493e-9d71-8ac051e1d0f9@6c48a",
+        "atlasUuid": "8b31f48f-304c-4ff0-851e-dc435894cb90"
       },
       "ver": "1.0.9",
       "imported": true,
@@ -148,7 +148,7 @@
   "userData": {
     "atlasTextureName": "buttons.png",
     "format": 3,
-    "uuid": "deb9e52c-4011-41f2-bbc2-6e7e478f16ec",
-    "textureUuid": "9aef2719-3c1c-40d8-98bb-37e316549a04@6c48a"
+    "uuid": "8b31f48f-304c-4ff0-851e-dc435894cb90",
+    "textureUuid": "e8ece2df-829d-493e-9d71-8ac051e1d0f9@6c48a"
   }
 }

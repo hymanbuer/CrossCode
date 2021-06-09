@@ -93,13 +93,13 @@
       "base",
       "gfx-webgl",
       "gfx-webgl2",
-      "profiler",
-      "audio",
-      "tween",
       "2d",
       "ui",
       "intersection-2d",
+      "profiler",
       "particle-2d",
+      "audio",
+      "tween",
       "tiled-map"
     ],
     "noDeprecatedFeatures": {

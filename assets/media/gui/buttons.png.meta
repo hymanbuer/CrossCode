@@ -2,7 +2,7 @@
   "ver": "1.0.21",
   "importer": "image",
   "imported": true,
-  "uuid": "9aef2719-3c1c-40d8-98bb-37e316549a04",
+  "uuid": "e8ece2df-829d-493e-9d71-8ac051e1d0f9",
   "files": [
     ".png",
     ".json"
@@ -10,55 +10,21 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "9aef2719-3c1c-40d8-98bb-37e316549a04@6c48a",
+      "uuid": "e8ece2df-829d-493e-9d71-8ac051e1d0f9@6c48a",
       "displayName": "buttons",
       "id": "6c48a",
       "name": "texture",
       "userData": {
         "wrapModeS": "repeat",
         "wrapModeT": "repeat",
-        "minfilter": "nearest",
-        "magfilter": "nearest",
+        "minfilter": "linear",
+        "magfilter": "linear",
         "mipfilter": "none",
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "9aef2719-3c1c-40d8-98bb-37e316549a04"
+        "imageUuidOrDatabaseUri": "e8ece2df-829d-493e-9d71-8ac051e1d0f9"
       },
       "ver": "1.0.21",
-      "imported": true,
-      "files": [
-        ".json"
-      ],
-      "subMetas": {}
-    },
-    "f9941": {
-      "importer": "sprite-frame",
-      "uuid": "9aef2719-3c1c-40d8-98bb-37e316549a04@f9941",
-      "displayName": "buttons",
-      "id": "f9941",
-      "name": "spriteFrame",
-      "userData": {
-        "trimType": "auto",
-        "trimThreshold": 1,
-        "rotated": false,
-        "offsetX": -1,
-        "offsetY": 13.5,
-        "trimX": 0,
-        "trimY": 0,
-        "width": 254,
-        "height": 229,
-        "rawWidth": 256,
-        "rawHeight": 256,
-        "borderTop": 0,
-        "borderBottom": 0,
-        "borderLeft": 0,
-        "borderRight": 0,
-        "packable": true,
-        "isUuid": true,
-        "imageUuidOrDatabaseUri": "9aef2719-3c1c-40d8-98bb-37e316549a04@6c48a",
-        "atlasUuid": ""
-      },
-      "ver": "1.0.9",
       "imported": true,
       "files": [
         ".json"
@@ -68,7 +34,7 @@
   },
   "userData": {
     "hasAlpha": true,
-    "type": "sprite-frame",
-    "redirect": "9aef2719-3c1c-40d8-98bb-37e316549a04@f9941"
+    "type": "texture",
+    "redirect": "e8ece2df-829d-493e-9d71-8ac051e1d0f9@6c48a"
   }
 }

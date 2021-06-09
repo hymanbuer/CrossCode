@@ -26,7 +26,7 @@
         <key>spriteSourceSize</key>
         <string>{32,24}</string>
         <key>textureRect</key>
-        <string>{{32,0},{32,24}}</string>
+        <string>{{34,0},{32,24}}</string>
         <key>textureRotated</key>
         <false/>
       </dict>
@@ -39,7 +39,7 @@
         <key>spriteSourceSize</key>
         <string>{16,24}</string>
         <key>textureRect</key>
-        <string>{{64,0},{16,24}}</string>
+        <string>{{0,26},{16,24}}</string>
         <key>textureRotated</key>
         <false/>
       </dict>
@@ -52,7 +52,7 @@
         <key>spriteSourceSize</key>
         <string>{16,24}</string>
         <key>textureRect</key>
-        <string>{{80,0},{16,24}}</string>
+        <string>{{18,26},{16,24}}</string>
         <key>textureRotated</key>
         <false/>
       </dict>
@@ -68,7 +68,7 @@
       <key>realTextureFileName</key>
       <string>buttons.png</string>
       <key>size</key>
-      <string>{256,256}</string>
+      <string>{66,50}</string>
       <key>smartupdate</key>
       <string>$TexturePacker:SmartUpdate:9c768fe6828cb6c075550d20fcd572e4:4d9c4c023ac2e79911a281ae6c21e22a:e75714c0871c497b76d71a94e9da90fb$</string>
       <key>textureFileName</key>

@@ -1,8 +1,8 @@
 {
-    "path": "media/gui/buttons.png",
+    "name": "buttons.png",
     "width": 256,
     "height": 256,
-    "spriteDict": {
+    "frames": {
         "button-default": {
             "type": "NinePatch",
             "width": 16,

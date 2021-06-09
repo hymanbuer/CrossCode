@@ -57,11 +57,11 @@ function parseByType(atlasData, type, data, prefix, outSprites) {
 
 function parse(atlasData) {
     const result = {};
-    result.textureFileName = Path.basename(atlasData.path);
+    result.textureFileName = atlasData.name;
     result.textureWidth = atlasData.width;
     result.textureHeight = atlasData.height;
     
-    const spriteDict = atlasData.spriteDict;
+    const spriteDict = atlasData.frames;
     const sprites = [];
     result.frames = sprites;
     for (var spriteName in spriteDict) {

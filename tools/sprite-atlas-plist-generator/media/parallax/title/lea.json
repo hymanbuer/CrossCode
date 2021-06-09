@@ -1,8 +1,8 @@
 {
-    "path": "media\/parallax\/title\/lea.png",
+    "name": "lea.png",
     "width": 1104,
     "height": 245,
-    "spriteDict": {
+    "frames": {
         "lea": {
             "type": "TileSheet",
             "src": {
