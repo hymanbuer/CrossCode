@@ -1,6 +1,7 @@
 
 const Fs = require('fs-extra');
 const Path = require('path');
+const Walk = require('walk');
 
 const parseAtlasData = require('./src/parse-sprite-atlas-data').parse;
 const writePlistData = require('./src/sprites-plist-writer').write;
@@ -31,7 +32,17 @@ async function handleFile(atlasDataPath) {
 
 (async () => {
     // await Fs.emptyDir(outDir);
-    await handleFile(Path.join(__dirname, 'media/gui/buttons.json'));
-    await handleFile(Path.join(__dirname, 'media/parallax/title/lea.json'));
-    await handleFile(Path.join(__dirname, 'media/gui/loading.json'));
+    const walker = Walk.walk(Path.join(__dirname, 'media'));
+    const atlasDataFiles = [];
+    walker.on('file', (root, stat, next) => {
+        const extName = Path.extname(stat.name);
+        if (extName == '.json') {
+            atlasDataFiles.push(Path.join(root, stat.name));
+        }
+        next();
+    });
+    walker.on('end', async () => {
+        await Promise.all(atlasDataFiles.map(path => handleFile(path)));
+    });
+    walker.on('error', (err) => console.error(err));
 })();
