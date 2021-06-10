@@ -13,7 +13,7 @@
         <key>spriteSourceSize</key>
         <string>{184,245}</string>
         <key>textureRect</key>
-        <string>{{0,0},{184,245}}</string>
+        <string>{{1,1},{184,245}}</string>
         <key>textureRotated</key>
         <false/>
       </dict>
@@ -26,7 +26,7 @@
         <key>spriteSourceSize</key>
         <string>{184,245}</string>
         <key>textureRect</key>
-        <string>{{186,0},{184,245}}</string>
+        <string>{{186,1},{184,245}}</string>
         <key>textureRotated</key>
         <false/>
       </dict>
@@ -39,7 +39,7 @@
         <key>spriteSourceSize</key>
         <string>{184,245}</string>
         <key>textureRect</key>
-        <string>{{372,0},{184,245}}</string>
+        <string>{{371,1},{184,245}}</string>
         <key>textureRotated</key>
         <false/>
       </dict>
@@ -52,7 +52,7 @@
         <key>spriteSourceSize</key>
         <string>{184,245}</string>
         <key>textureRect</key>
-        <string>{{0,247},{184,245}}</string>
+        <string>{{1,247},{184,245}}</string>
         <key>textureRotated</key>
         <false/>
       </dict>
@@ -78,7 +78,7 @@
         <key>spriteSourceSize</key>
         <string>{184,245}</string>
         <key>textureRect</key>
-        <string>{{372,247},{184,245}}</string>
+        <string>{{371,247},{184,245}}</string>
         <key>textureRotated</key>
         <false/>
       </dict>
@@ -94,7 +94,7 @@
       <key>realTextureFileName</key>
       <string>lea.png</string>
       <key>size</key>
-      <string>{556,492}</string>
+      <string>{554,491}</string>
       <key>smartupdate</key>
       <string>$TexturePacker:SmartUpdate:9c768fe6828cb6c075550d20fcd572e4:4d9c4c023ac2e79911a281ae6c21e22a:e75714c0871c497b76d71a94e9da90fb$</string>
       <key>textureFileName</key>

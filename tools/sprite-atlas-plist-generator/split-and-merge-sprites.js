@@ -3,10 +3,11 @@ const Fs = require('fs-extra');
 const Path = require('path');
 const Jimp = require('jimp');
 const Spritesmith = require('spritesmith');
+const Sharp = require('sharp');
 
 async function mergeFrames(framePaths, plistData, outAtlasImagePath) {
     return new Promise((resolve, reject) => {
-        Spritesmith.run({ src: framePaths, padding: 2, exportOpts: {quality: 100} }, async (err, result) => {
+        Spritesmith.run({ src: framePaths, padding: 1, exportOpts: {quality: 100} }, async (err, result) => {
             if (err) {
                 reject(err);
             } else {
@@ -22,15 +23,23 @@ async function mergeFrames(framePaths, plistData, outAtlasImagePath) {
 
                 plistData.frames.forEach(frame => {
                     const newCoordinate = newCoordinates[frame.name];
-                    frame.x = newCoordinate.x;
-                    frame.y = newCoordinate.y;
+                    frame.x = newCoordinate.x + 1;
+                    frame.y = newCoordinate.y + 1;
                     frame.w = newCoordinate.width;
                     frame.h = newCoordinate.height;
                 });
 
-                await Fs.outputFile(outAtlasImagePath, result.image);
-
-                resolve()
+                Sharp(result.image)
+                    .extend({
+                        top: 1,
+                        bottom: 1,
+                        left: 1,
+                        right: 1,
+                        background: { r: 0, g: 0, b: 0, alpha: 0 }
+                    })
+                    .toFile(outAtlasImagePath)
+                    .then(resolve)
+                    .catch(reject);
             }
         });
     });
