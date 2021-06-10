@@ -55,7 +55,8 @@ function parseByType(atlasData, type, data, prefix, outSprites) {
     }
 }
 
-function parse(atlasData) {
+async function parse(atlasDataPath) {
+    const atlasData = await Fs.readJson(atlasDataPath);
     const result = {};
     result.textureFileName = atlasData.name;
     result.textureWidth = atlasData.width;

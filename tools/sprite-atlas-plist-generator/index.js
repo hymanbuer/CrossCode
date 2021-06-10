@@ -23,8 +23,7 @@ async function handleFile(atlasDataPath) {
 
     await Fs.ensureDir(outDirName);
     
-    const atlasData = await Fs.readJson(atlasDataPath);
-    const plistData = parseAtlasData(atlasData);
+    const plistData = await parseAtlasData(atlasDataPath);
     await remergeSpritesAsync(plistData, atlasImagePath, plistImagePath);
 
     const xml = writePlistData(plistData);
