@@ -8,8 +8,8 @@ const remergeSpritesAsync = require('./../sprite-atlas-plist-generator/split-and
 const writeBitmapFont = require('./bitmap-font-writer').write;
 
 const rootDir = __dirname;
-// const outDir = Path.join(__dirname, '..', '..', 'assets');
-const outDir = Path.join(__dirname, 'out');
+const outDir = Path.join(__dirname, '..', '..', 'assets');
+// const outDir = Path.join(__dirname, 'out');
 
 async function handleFile(fontDataPath) {
     const relativePath = Path.relative(rootDir, fontDataPath);

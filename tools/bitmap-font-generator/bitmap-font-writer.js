@@ -6,6 +6,7 @@ const _fixed = (str, length) => str.length < length ? (str + ' '.repeat(length-s
 function write(fontData, plistData) {
     const frames = plistData.frames || [];
     const lines = new Array(4 + frames.length);
+    const extraXAdvance = 1;
 
     const info = [];
     info.push('info');
@@ -56,7 +57,7 @@ function write(fontData, plistData) {
         char[3] = _fixed(_value('y', frame.y), 8);
         char[4] = _fixed(_value('width', frame.w), 12);
         char[5] = _fixed(_value('height', frame.h), 13);
-        char[8] = _fixed(_value('xadvance', frame.w), 15);
+        char[8] = _fixed(_value('xadvance', frame.w + extraXAdvance), 15);
         char[11] = _string('letter', frame.letter);
         lines[lineIndex] = char.join(' ');
     }
