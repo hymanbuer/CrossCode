@@ -1,5 +1,6 @@
 
 const Path = require('path');
+const Fs = require('fs-extra');
 
 function fixedWidth(value) {
     return value < 10 ? `0${value}` : `${value}`;

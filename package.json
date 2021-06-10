@@ -7,7 +7,9 @@
     "version": "3.1.1"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "generate-bitmapfont": "node tools/bitmap-font-generator",
+    "generate-spriteatlas": "node tools/sprite-atlas-plist-generator"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
