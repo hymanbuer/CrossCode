@@ -3,9 +3,9 @@ const Fs = require('fs-extra');
 const Path = require('path');
 const Walk = require('walk');
 
-const parseAtlasData = require('./src/parse-sprite-atlas-data').parse;
-const writePlistData = require('./src/sprites-plist-writer').write;
-const remergeSpritesAsync = require('./src/split-and-merge-sprites').remergeAsync;
+const parseAtlasData = require('./parse-sprite-atlas-data').parse;
+const writePlistData = require('./sprites-plist-writer').write;
+const remergeSpritesAsync = require('./split-and-merge-sprites').remergeAsync;
 
 const rootDir = __dirname;
 const outDir = Path.join(__dirname, '..', '..', 'assets');
@@ -16,6 +16,7 @@ async function handleFile(atlasDataPath) {
     const relativeDir = Path.dirname(relativePath);
     const baseName = Path.basename(atlasDataPath, '.json');
     const outDirName = Path.join(outDir, relativeDir);
+
     const plistImagePath = Path.join(outDirName, `${baseName}.png`);
     const plistDataPath = Path.join(outDirName, `${baseName}.plist`);
     const atlasImagePath = Path.join(Path.dirname(atlasDataPath), `${baseName}.png`);

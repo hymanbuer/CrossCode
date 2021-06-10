@@ -3,6 +3,9 @@ const Fs = require('fs-extra');
 const Path = require('path');
 const Jimp = require('jimp');
 
+const rootDir = __dirname;
+const outDir = Path.join(__dirname, '..', '..', 'assets');
+
 function getImageRegionAlphas(image, x, y, width, height) {
     const result = [];
     image.scan(x, y, width, height, function(x, y, idx) {
@@ -57,6 +60,21 @@ function getImageRegionAlphas(image, x, y, width, height) {
 //     console.log(indicesX.length, indicesX);
 //     console.log(indicesY.length, indicesY);
 // })();
+
+async function handleFile(filePath) {
+    const relativePath = Path.relative(rootDir, filePath);
+    const relativeDir = Path.dirname(relativePath);
+    const baseName = Path.basename(filePath, '.json');
+    const outDirName = Path.join(outDir, relativeDir);
+
+    const fntDataPath = Path.join(outDirName, `${baseName}.fnt`);
+    const fntImagePath = Path.join(outDirName, `${baseName}.png`);
+    const originImagePath = Path.join(Path.dirname(filePath), `${baseName}.png`);
+
+    await Fs.ensureDir(outDirName);
+
+    
+}
 
 (async () => {
     const _value = (name, value) => `${name}=${value}`;
