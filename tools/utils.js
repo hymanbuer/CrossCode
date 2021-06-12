@@ -1,4 +1,5 @@
 
+const Path = require('path');
 const Walk = require('walk');
 
 async function getAllFilesInDirWithExt(dir, targetExtName) {
