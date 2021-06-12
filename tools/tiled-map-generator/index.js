@@ -5,17 +5,14 @@ const XmlBuilder = require('xmlbuilder');
 const Zlib = require('zlib');
 const Base64Js = require('base64-js');
 const Jimp = require('jimp');
+const Walk = require('walk');
+
+const Utils = require('./../utils');
 
 const rootDir = __dirname;
+const outDir = Path.join(__dirname, 'out');
 
-async function readImageSize(imagePath) {
-    const image = await Jimp.read(imagePath);
-    
-    return {
-        width: image.getWidth(),
-        height: image.getHeight()
-    };
-}
+///////////////
 
 function buildTmxContent() {
     const map = XmlBuilder.create('map', { encoding: 'utf-8' });
@@ -84,41 +81,13 @@ function buildTsxContent() {
 
 //////////////
 
-function createTmxMap(mapWidth, mapHeight) {
-    return XmlBuilder.create('map', { encoding: 'utf-8' })
-        .att('version', '1.4')
-        .att('orientation', 'orthogonal')
-        .att('renderorder', 'right-down')
-        .att('width', `${mapWidth}`)
-        .att('height', `${mapHeight}`)
-        .att('tilewidth', '16')
-        .att('tileheight', '16');
-}
-
-async function appendEmbededTileset(tmxMap, firstGid, relativeTilesetPath, tilesize) {
-    const tilesetPath = Path.join(rootDir, relativeTilesetPath);
-    const imageSize = await readImageSize(tilesetPath);
-    const tilesetName = Path.basename(relativeTilesetPath, '.png');
-    const sourceName = Path.basename(relativeTilesetPath);
-    const columns = Math.floor(imageSize.width / tilesize);
-    const tilecount = columns * Math.floor(imageSize.height / tilesize);
-
-    tmxMap.ele('tileset')
-        .att('firstgid', `${firstGid}`)
-        .att('name', tilesetName)
-        .att('tilewidth', `${tilesize}`)
-        .att('tileheight', `${tilesize}`)
-        .att('tilecount', `${tilecount}`)
-        .att('columns', `${columns}`)
-
-        .ele('image')
-            .att('source', sourceName)
-            .att('width', `${imageSize.width}`)
-            .att('height', `${imageSize.height}`)
-        .up()
-    .up();
-
-    return firstGid + tilecount;
+async function readImageSize(imagePath) {
+    const image = await Jimp.read(imagePath);
+    
+    return {
+        width: image.getWidth(),
+        height: image.getHeight()
+    };
 }
 
 async function zlibCompressAndEncodeByBase64(buffer) {
@@ -131,6 +100,57 @@ async function zlibCompressAndEncodeByBase64(buffer) {
             }
         });
     });
+}
+
+async function readTilesetInfo(relativeTilesetPath, tilesize) {
+    const tilesetPath = Path.join(rootDir, relativeTilesetPath);
+    const imageSize = await readImageSize(tilesetPath);
+    const columns = Math.floor(imageSize.width / tilesize);
+
+    return {
+        imageWidth: imageSize.width,
+        imageHeight: imageSize.height,
+        tilesetName: Path.basename(relativeTilesetPath, '.png'),
+        sourceName: Path.basename(relativeTilesetPath),
+        columns: columns,
+        tilecount: columns * Math.floor(imageSize.height / tilesize),
+    };
+}
+
+function createTmxMap(mapWidth, mapHeight) {
+    return XmlBuilder.create('map', { encoding: 'utf-8' })
+        .att('version', '1.4')
+        .att('orientation', 'orthogonal')
+        .att('renderorder', 'right-down')
+        .att('width', `${mapWidth}`)
+        .att('height', `${mapHeight}`)
+        .att('tilewidth', '16')
+        .att('tileheight', '16');
+}
+
+async function appendEmbededTileset(tmxMap, firstGid, relativeTilesetPath, tilesize) {
+    const {
+        imageWidth, imageHeight,
+        tilesetName, sourceName,
+        columns, tilecount,
+    } = await readTilesetInfo(relativeTilesetPath, tilesize);
+
+    tmxMap.ele('tileset')
+        .att('firstgid', `${firstGid}`)
+        .att('name', tilesetName)
+        .att('tilewidth', `${tilesize}`)
+        .att('tileheight', `${tilesize}`)
+        .att('tilecount', `${tilecount}`)
+        .att('columns', `${columns}`)
+
+        .ele('image')
+            .att('source', sourceName)
+            .att('width', `${imageWidth}`)
+            .att('height', `${imageHeight}`)
+        .up()
+    .up();
+
+    return firstGid + tilecount;
 }
 
 async function appendLayer(tmxMap, id, name, width, height, data, firstGid) {
@@ -161,12 +181,44 @@ async function appendLayer(tmxMap, id, name, width, height, data, firstGid) {
     .up();
 }
 
+async function appendExternalTileset(tmxMap, firstGid, tilesetName) {
+    tmxMap.ele('tileset')
+        .att('firstgid', `${firstGid}`)
+        .att('source', `${tilesetName}.tsx`)
+    .up();
+}
+
+async function createTsxTileset(relativeTilesetPath, tilesize) {
+    const {
+        imageWidth, imageHeight,
+        tilesetName, sourceName,
+        columns, tilecount,
+    } = await readTilesetInfo(relativeTilesetPath, tilesize);
+
+    const tileset = XmlBuilder.create('tileset', { encoding: 'utf-8' });
+    tileset.att('name', tilesetName)
+        .att('tilewidth', `${tilesize}`)
+        .att('tileheight', `${tilesize}`)
+        .att('spacing', '0')
+        .att('margin', '0')
+        .att('tilecount', `${tilecount}`)
+        .att('columns', `${columns}`);
+
+    tileset.ele('image')
+        .att('source', sourceName)
+        .att('width', `${imageWidth}`)
+        .att('height', `${imageHeight}`)
+        .up();
+
+    return tileset;
+}
+
 async function writeXmlFile(xml, outFilePath) {
     const content = xml.end({ pretty: true });
     await Fs.writeFile(outFilePath, content, { encoding: 'utf-8' });
 }
 
-(async () => {
+async function handleFile() {
     const testPath = Path.join(__dirname, 'data/maps/hideout/inner-test.json');
 
     let nextFirstGid = 1;
@@ -189,4 +241,85 @@ async function writeXmlFile(xml, outFilePath) {
     }));
 
     await writeXmlFile(tmxMap, Path.join(__dirname, 'inner-test.tmx'));
+}
+
+//////////////////
+
+function getOrCreateTileset(tilesetMap, fullName, tilesize) {
+    let tileset = tilesetMap[fullName];
+    if (tileset == null) {
+        tileset = tilesetMap[fullName] = {
+            fullName,
+            name: Path.basename(fullName, '.png'),
+            tilesize,
+            idSet: new Set(),
+        };
+    }
+
+    return tileset;
+}
+
+function addAllTileIdsInLayer(tileset, layerWidth, layerHeight, layerData) {
+    const idSet = tileset.idSet;
+    for (let col = 0; col < layerWidth; col++) {
+        for (let row = 0; row < layerHeight; row++) {
+            const id = layerData[row][col];
+            if (id != 0) {
+                idSet.add(id);
+            }
+        }
+    }
+}
+
+async function parseMapFile(file, tmxMapMap, tilesetMap) {
+    const mapData = await Fs.readJson(file);
+
+    const tmxMap = tmxMapMap[mapData.name] = {
+        name: mapData.name,
+        width: mapData.mapWidth,
+        height: mapData.mapHeight,
+        layers: [],
+    };
+
+    mapData.layer.forEach(layer => {
+        const tileset = getOrCreateTileset(tilesetMap, layer.tilesetName, layer.tilesize);
+        addAllTileIdsInLayer(tileset, layer.width, layer.height, layer.data);
+
+        tmxMap.layers.push({
+            id: layer.id,
+            name: layer.name,
+            width: layer.width,
+            height: layer.height,
+            data: layer.data,
+            tilesetName: layer.tilesetName,
+        });
+
+        delete layer['tilesetName'];
+        delete layer['data'];
+    });
+
+    const outPath = Path.join(Utils.getOutDir(rootDir, file, outDir), Path.basename(file));
+    await Fs.outputJson(outPath, mapData, { encoding: 'utf-8' });
+}
+
+async function proccessTileset(tileset) {
+
+}
+
+async function proccessTmxMap(tmxMap, tilesetMap) {
+
+}
+
+(async () => {
+    const mapsDir = Path.join(__dirname, 'data', 'maps');
+    const mapFiles = await Utils.getAllFilesInDirWithExt(mapsDir, '.json');
+
+    const tmxMapMap = {};
+    const tilesetMap = {};
+
+    await Promise.all(mapFiles.map(file => parseMapFile(file, tmxMapMap, tilesetMap)));
+    
+    await Promise.all(Object.keys(tilesetMap).map(key => proccessTileset(tilesetMap[key])));
+
+    await Promise.all(Object.keys(tmxMapMap).map(key => proccessTmxMap(tmxMapMap[key], tilesetMap)));
 })();

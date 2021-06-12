@@ -1,6 +1,7 @@
 
 const Path = require('path');
 const Walk = require('walk');
+const Fs = require('fs-extra');
 
 async function getAllFilesInDirWithExt(dir, targetExtName) {
     return new Promise((resolve, reject) => {
@@ -20,3 +21,10 @@ async function getAllFilesInDirWithExt(dir, targetExtName) {
     });
 }
 exports.getAllFilesInDirWithExt = getAllFilesInDirWithExt;
+
+function getOutDir(rootInDir, inPath, rootOutDir) {
+    const relativePath = Path.relative(rootInDir, inPath);
+    const relativeDir = Path.dirname(relativePath);
+    return Path.join(rootOutDir, relativeDir);
+}
+exports.getOutDir = getOutDir;
