@@ -29,6 +29,8 @@ async function mergeFrames(framePaths, plistData, outAtlasImagePath) {
                     frame.h = newCoordinate.height;
                 });
 
+                await Fs.ensureDir(Path.dirname(outAtlasImagePath));
+
                 Sharp(result.image)
                     .extend({
                         top: 1,
@@ -48,7 +50,7 @@ async function mergeFrames(framePaths, plistData, outAtlasImagePath) {
 async function remergeAsync(plistData, inAtlasImagePath, outAtlasImagePath) {
     const frames = plistData.frames;
     const inAtlasImage = await Jimp.read(inAtlasImagePath);
-    const tempDir = await Fs.mkdtemp('frames_');
+    const tempDir = await Fs.mkdtemp('temp_');
     const framePaths = frames.map(frame => Path.join(tempDir, frame.name));
     const promises = frames.map((frame, index) => {
         return inAtlasImage.clone()

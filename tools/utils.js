@@ -28,3 +28,9 @@ function getOutDir(rootInDir, inPath, rootOutDir) {
     return Path.join(rootOutDir, relativeDir);
 }
 exports.getOutDir = getOutDir;
+
+function getOutPath(rootInDir, inPath, rootOutDir) {
+    const outDir = getOutDir(rootInDir, inPath, rootOutDir)
+    return Path.join(outDir, Path.basename(inPath));
+}
+exports.getOutPath = getOutPath;

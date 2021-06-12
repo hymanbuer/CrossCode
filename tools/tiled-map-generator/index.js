@@ -8,6 +8,7 @@ const Jimp = require('jimp');
 const Walk = require('walk');
 
 const Utils = require('./../utils');
+const remergeSpritesAsync = require('./../sprite-atlas-plist-generator/split-and-merge-sprites').remergeAsync;
 
 const rootDir = __dirname;
 const outDir = Path.join(__dirname, 'out');
@@ -298,12 +299,41 @@ async function parseMapFile(file, tmxMapMap, tilesetMap) {
         delete layer['data'];
     });
 
-    const outPath = Path.join(Utils.getOutDir(rootDir, file, outDir), Path.basename(file));
+    const outPath = Utils.getOutPath(rootDir, file, outDir);
     await Fs.outputJson(outPath, mapData, { encoding: 'utf-8' });
 }
 
 async function proccessTileset(tileset) {
+    let oldIds = [];
+    for (let id of tileset.idSet.values()) {
+        oldIds.push(id);
+    }
+    oldIds = oldIds.sort();
 
+    const oldIdToNewIdMap = {};
+    tileset.oldIdToNewIdMap = oldIdToNewIdMap;
+    tileset.tilecount = oldIds.length;
+
+    const tilesize = tileset.tilesize;
+    const oldImagePath = Path.join(rootDir, tileset.fullName);
+    const oldImageSize = await readImageSize(oldImagePath);
+    const oldColumns = Math.floor(oldImageSize.width / tilesize);
+    const frames = [];
+    oldIds.forEach((oldId, index) => {
+        const newId = index + 1;
+        oldIdToNewIdMap[oldId] = newId;
+
+        const frame = {};
+        frame.name = `tile_${newId}.png`;
+        frame.x = (oldId % oldColumns) * tilesize;
+        frame.y = Math.floor(oldId / oldColumns) * tilesize;
+        frame.w = frame.h = tilesize;
+        frames.push(frame);
+    });
+
+    const newImagePath = Utils.getOutPath(rootDir, oldImagePath, outDir);
+    const plistData = { frames };
+    await remergeSpritesAsync(plistData, oldImagePath, newImagePath);
 }
 
 async function proccessTmxMap(tmxMap, tilesetMap) {
@@ -311,6 +341,8 @@ async function proccessTmxMap(tmxMap, tilesetMap) {
 }
 
 (async () => {
+    await Fs.emptyDir(outDir);
+
     const mapsDir = Path.join(__dirname, 'data', 'maps');
     const mapFiles = await Utils.getAllFilesInDirWithExt(mapsDir, '.json');
 
