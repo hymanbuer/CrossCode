@@ -189,64 +189,11 @@ async function appendEmbededTileset(tmxMap, firstGid, relativeTilesetPath, tiles
     return firstGid + tilecount;
 }
 
-async function appendLayer(tmxMap, id, name, width, height, data, firstGid) {
-    const byteLength = width * height * 4;
-    const buffer = new ArrayBuffer(byteLength);
-    const uint32Array = new Uint32Array(buffer);
-    for (let col = 0; col < width; col++) {
-        for (let row = 0; row < height; row++) {
-            const index = col + row * width;
-            const gid = data[row][col] != 0 ? firstGid + data[row][col] - 1 : 0;
-            uint32Array[index] = gid;
-        }
-    }
-
-    const base64Content = await zlibCompressAndEncodeByBase64(buffer);
-
-    tmxMap.ele('layer')
-        .att('id', `${id}`)
-        .att('name', `${name}`)
-        .att('width', `${width}`)
-        .att('height', `${height}`)
-
-        .ele('data')
-            .att('encoding', 'base64')
-            .att('compression', 'zlib')
-            .text(base64Content)
-        .up()
-    .up();
-}
-
 async function appendExternalTileset(tmxMap, firstGid, tilesetName) {
     tmxMap.ele('tileset')
         .att('firstgid', `${firstGid}`)
         .att('source', `${tilesetName}.tsx`)
     .up();
-}
-
-async function createTsxTileset(relativeTilesetPath, tilesize) {
-    const {
-        imageWidth, imageHeight,
-        tilesetName, sourceName,
-        columns, tilecount,
-    } = await readTilesetInfo(relativeTilesetPath, tilesize);
-
-    const tileset = XmlBuilder.create('tileset', { encoding: 'utf-8' });
-    tileset.att('name', tilesetName)
-        .att('tilewidth', `${tilesize}`)
-        .att('tileheight', `${tilesize}`)
-        .att('spacing', '0')
-        .att('margin', '0')
-        .att('tilecount', `${tilecount}`)
-        .att('columns', `${columns}`);
-
-    tileset.ele('image')
-        .att('source', sourceName)
-        .att('width', `${imageWidth}`)
-        .att('height', `${imageHeight}`)
-        .up();
-
-    return tileset;
 }
 
 async function writeXmlFile(xml, outFilePath) {
@@ -307,10 +254,11 @@ function addAllTileIdsInLayer(tileset, layerWidth, layerHeight, layerData) {
     }
 }
 
-async function parseMapFile(file, tmxMapMap, tilesetMap) {
-    const mapData = await Fs.readJson(file);
+async function parseMapFile(filePath, tmxMapMap, tilesetMap) {
+    const mapData = await Fs.readJson(filePath);
 
     const tmxMap = tmxMapMap[mapData.name] = {
+        path: filePath,
         name: mapData.name,
         width: mapData.mapWidth,
         height: mapData.mapHeight,
@@ -334,7 +282,7 @@ async function parseMapFile(file, tmxMapMap, tilesetMap) {
         delete layer['data'];
     });
 
-    const outPath = Utils.getOutPath(rootDir, file, rootOutDir);
+    const outPath = Utils.getOutPath(rootDir, filePath, rootOutDir);
     await Fs.outputJson(outPath, mapData, { encoding: 'utf-8' });
 }
 
@@ -359,7 +307,7 @@ async function proccessTileset(tileset) {
         oldIdToNewIdMap[oldId] = newId;
 
         const frame = {};
-        frame.name = `tile_${newId}.png`;
+        frame.name = `tile_${Utils.fixedInteger(newId, 4)}.png`;
         frame.x = (oldId % oldColumns) * tilesize;
         frame.y = Math.floor(oldId / oldColumns) * tilesize;
         frame.w = frame.h = tilesize;
@@ -403,7 +351,82 @@ async function outputTsxFile(tileset, outTsxPath) {
 }
 
 async function proccessTmxMap(tmxMap, tilesetMap) {
+    const xml = XmlBuilder.create('map', { encoding: 'utf-8' })
+        .att('version', '1.4')
+        .att('orientation', 'orthogonal')
+        .att('renderorder', 'right-down')
+        .att('width', `${tmxMap.width}`)
+        .att('height', `${tmxMap.height}`)
+        .att('tilewidth', '16')
+        .att('tileheight', '16');
 
+    const layers = tmxMap.layers;
+    const firstGidMap = {};
+    let nextFirstGid = 1;
+    layers.forEach(layer => {
+        const tilesetName = layer.tilesetName;
+        if (!firstGidMap[tilesetName]) {
+            firstGidMap[tilesetName] = nextFirstGid;
+            nextFirstGid += tilesetMap[tilesetName].tilecount;
+        }
+    });
+
+    const tmxMapDir = Path.dirname(tmxMap.path);
+    for (let tilesetName in firstGidMap) {
+        const tilesetDir = Path.dirname(Path.join(rootDir, tilesetName));
+        const relative = Path.relative(tmxMapDir, tilesetDir);
+        const baseName = Path.basename(tilesetName, '.png');
+        const source = Path.join(relative, `${baseName}.tsx`).replace(/\\/g, '/');
+        xml.ele('tileset')
+            .att('firstgid', `${firstGidMap[tilesetName]}`)
+            .att('source', source)
+        .up();
+    }
+
+    await Promise.all(layers.map(layer => {
+        const tilesetName = layer.tilesetName;
+        return appendLayer(xml, layer, firstGidMap[tilesetName], tilesetMap[tilesetName].oldIdToNewIdMap);
+    }));
+    
+    const content = xml.end({ pretty: true });
+    const outTmxPath = Utils.getOutPathWithDiffExt(rootDir, tmxMap.path, rootOutDir, '.json', '.tmx');
+    await Fs.outputFile(outTmxPath, content, { encoding: 'utf-8' });
+}
+
+async function appendLayer(xml, layer, firstGid, oldIdToNewIdMap) {
+    const width = layer.width;
+    const height = layer.height;
+    const data = layer.data;
+    const byteLength = width * height * 4;
+    const buffer = new ArrayBuffer(byteLength);
+    const uint32Array = new Uint32Array(buffer);
+    for (let col = 0; col < width; col++) {
+        for (let row = 0; row < height; row++) {
+            const index = col + row * width;
+            const oldLocalId = data[row][col];
+            if (oldLocalId == 0) {
+                uint32Array[index] = 0;
+            } else {
+                const newLocalId = oldIdToNewIdMap[oldLocalId];
+                uint32Array[index] = firstGid + newLocalId - 1;
+            }
+        }
+    }
+
+    const base64Content = await zlibCompressAndEncodeByBase64(buffer);
+
+    xml.ele('layer')
+        .att('id', `${layer.id}`)
+        .att('name', `${layer.name}`)
+        .att('width', `${width}`)
+        .att('height', `${height}`)
+
+        .ele('data')
+            .att('encoding', 'base64')
+            .att('compression', 'zlib')
+            .text(base64Content)
+        .up()
+    .up();
 }
 
 (async () => {
