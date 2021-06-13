@@ -11,7 +11,42 @@ const Utils = require('./../utils');
 const remergeSpritesAsync = require('./../sprite-atlas-plist-generator/split-and-merge-sprites').remergeAsync;
 
 const rootDir = __dirname;
-const outDir = Path.join(__dirname, 'out');
+const rootOutDir = Path.join(__dirname, 'out');
+
+///////////////
+
+const Layout = require('layout');
+const BinPack = require('bin-pack');
+// pack(items, {inPlace: true});
+Layout.addAlgorithm('pack-tileset', {
+    sort(items) {
+        return items;
+    },
+
+    placeItems(items) {
+        const maxWidth = 1024;
+        let currentLineHeight = 0;
+        let nextX = 0;
+        let nextY = 0;
+        items.forEach(item => {
+            if (nextX + item.width > maxWidth) {
+                nextX = 0;
+                nextY = nextY + currentLineHeight;
+                currentLineHeight = 0;
+            }
+
+            item.x = nextX;
+            item.y = nextY;
+
+            nextX += item.width;
+            if (item.height > currentLineHeight) {
+                currentLineHeight = item.height;
+            }
+        });
+
+        return items;
+    }
+});
 
 ///////////////
 
@@ -299,7 +334,7 @@ async function parseMapFile(file, tmxMapMap, tilesetMap) {
         delete layer['data'];
     });
 
-    const outPath = Utils.getOutPath(rootDir, file, outDir);
+    const outPath = Utils.getOutPath(rootDir, file, rootOutDir);
     await Fs.outputJson(outPath, mapData, { encoding: 'utf-8' });
 }
 
@@ -331,9 +366,40 @@ async function proccessTileset(tileset) {
         frames.push(frame);
     });
 
-    const newImagePath = Utils.getOutPath(rootDir, oldImagePath, outDir);
+    const outDir = Utils.getOutDir(rootDir, oldImagePath, rootOutDir);
+    const baseName = Path.basename(tileset.fullName, '.png');
+    const newImagePath = Path.join(outDir, `${baseName}.png`);
     const plistData = { frames };
-    await remergeSpritesAsync(plistData, oldImagePath, newImagePath);
+    await remergeSpritesAsync(plistData, oldImagePath, newImagePath, 'pack-tileset');
+
+    tileset.name = baseName;
+    tileset.imageWidth = plistData.textureWidth;
+    tileset.imageHeight = plistData.textureHeight;
+    tileset.sourceName = Path.basename(tileset.fullName);
+    tileset.columns = Math.floor(plistData.textureWidth / (tilesize + 1));
+
+    const outTsxPath = Path.join(outDir, `${baseName}.tsx`);
+    await outputTsxFile(tileset, outTsxPath);
+}
+
+async function outputTsxFile(tileset, outTsxPath) {
+    const xml = XmlBuilder.create('tileset', { encoding: 'utf-8' });
+    xml.att('name', tileset.name)
+        .att('tilewidth', `${tileset.tilesize}`)
+        .att('tileheight', `${tileset.tilesize}`)
+        .att('spacing', '1')
+        .att('margin', '1')
+        .att('tilecount', `${tileset.tilecount}`)
+        .att('columns', `${tileset.columns}`);
+
+        xml.ele('image')
+        .att('source', tileset.sourceName)
+        .att('width', `${tileset.imageWidth}`)
+        .att('height', `${tileset.imageHeight}`)
+        .up();
+
+    const content = xml.end({ pretty: true });
+    await Fs.outputFile(outTsxPath, content, { encoding: 'utf-8' });
 }
 
 async function proccessTmxMap(tmxMap, tilesetMap) {
@@ -341,7 +407,7 @@ async function proccessTmxMap(tmxMap, tilesetMap) {
 }
 
 (async () => {
-    await Fs.emptyDir(outDir);
+    await Fs.emptyDir(rootOutDir);
 
     const mapsDir = Path.join(__dirname, 'data', 'maps');
     const mapFiles = await Utils.getAllFilesInDirWithExt(mapsDir, '.json');

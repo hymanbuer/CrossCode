@@ -5,9 +5,9 @@ const Jimp = require('jimp');
 const Spritesmith = require('spritesmith');
 const Sharp = require('sharp');
 
-async function mergeFrames(framePaths, plistData, outAtlasImagePath) {
+async function mergeFrames(framePaths, plistData, outAtlasImagePath, algorithm) {
     return new Promise((resolve, reject) => {
-        Spritesmith.run({ src: framePaths, padding: 1, exportOpts: {quality: 100} }, async (err, result) => {
+        Spritesmith.run({ src: framePaths, padding: 1, exportOpts: {quality: 100}, algorithm }, async (err, result) => {
             if (err) {
                 reject(err);
             } else {
@@ -31,6 +31,9 @@ async function mergeFrames(framePaths, plistData, outAtlasImagePath) {
 
                 await Fs.ensureDir(Path.dirname(outAtlasImagePath));
 
+                plistData.textureWidth += 2;
+                plistData.textureHeight += 2;
+                
                 Sharp(result.image)
                     .extend({
                         top: 1,
@@ -47,7 +50,7 @@ async function mergeFrames(framePaths, plistData, outAtlasImagePath) {
     });
 }
 
-async function remergeAsync(plistData, inAtlasImagePath, outAtlasImagePath) {
+async function remergeAsync(plistData, inAtlasImagePath, outAtlasImagePath, layoutAlgorithm) {
     const frames = plistData.frames;
     const inAtlasImage = await Jimp.read(inAtlasImagePath);
     const tempDir = await Fs.mkdtemp('temp_');
@@ -60,7 +63,7 @@ async function remergeAsync(plistData, inAtlasImagePath, outAtlasImagePath) {
     });
     await Promise.all(promises);
 
-    await mergeFrames(framePaths, plistData, outAtlasImagePath);
+    await mergeFrames(framePaths, plistData, outAtlasImagePath, layoutAlgorithm);
 
     await Fs.remove(tempDir);
 }
