@@ -132,8 +132,11 @@ async function parseMapFile(filePath, tmxMapMap, tilesetMap) {
 }
 
 async function proccessTileset(tileset) {
+    const idSet = tileset.idSet;
+    tileset.animations.forEach(animation => animation.forEach(frame => idSet.add(frame)));
+
     let oldIds = [];
-    for (let id of tileset.idSet.values()) {
+    for (let id of idSet.values()) {
         oldIds.push(id);
     }
     oldIds = oldIds.sort();
@@ -152,7 +155,7 @@ async function proccessTileset(tileset) {
         oldIdToNewIdMap[oldId] = newId;
 
         const frame = {};
-        frame.name = `tile_${Utils.fixedInteger(newId, 4)}_${oldId}.png`;
+        frame.name = `tile_${oldId}_${Utils.fixedInteger(newId, 4)}.png`;
         frame.x = Math.round(((oldId-1) % oldColumns)) * tilesize;
         frame.y = Math.round(Math.floor((oldId-1) / oldColumns)) * tilesize;
         frame.w = frame.h = tilesize;
@@ -190,6 +193,23 @@ async function outputTsxFile(tileset, outTsxPath) {
         .att('width', `${tileset.imageWidth}`)
         .att('height', `${tileset.imageHeight}`)
         .up();
+
+    const animations = tileset.animations;
+    const oldIdToNewIdMap = tileset.oldIdToNewIdMap;
+    animations.forEach(animation => {
+        // tileset's id count from 0
+        const frames = animation.map(oldId => oldIdToNewIdMap[oldId] - 1);
+        const tileXml = xml.ele('tile').att('id', `${frames[0]}`);
+
+        const animationXml = tileXml.ele('animation');
+        frames.forEach(frame => animationXml.ele('frame')
+            .att('tileid', `${frame}`)
+            .att('duration', `200`)
+            .up());
+        animationXml.up();
+
+        tileXml.up();
+    });
 
     const content = xml.end({ pretty: true });
     await Fs.outputFile(outTsxPath, content, { encoding: 'utf-8' });
@@ -238,6 +258,8 @@ async function proccessTmxMap(tmxMap, tilesetMap) {
     await Fs.outputFile(outTmxPath, content, { encoding: 'utf-8' });
 }
 
+let count = 1000;
+
 async function appendLayer(xml, layer, firstGid, oldIdToNewIdMap) {
     const width = layer.width;
     const height = layer.height;
@@ -277,7 +299,7 @@ async function appendLayer(xml, layer, firstGid, oldIdToNewIdMap) {
 (async () => {
     await Fs.emptyDir(rootOutDir);
 
-    const mapsDir = Path.join(__dirname, 'data', 'maps');
+    const mapsDir = Path.join(rootDir, 'data', 'maps');
     const mapFiles = await Utils.getAllFilesInDirWithExt(mapsDir, '.json');
 
     const tmxMapMap = {};
@@ -285,7 +307,13 @@ async function appendLayer(xml, layer, firstGid, oldIdToNewIdMap) {
 
     await Promise.all(mapFiles.map(file => parseMapFile(file, tmxMapMap, tilesetMap)));
     
-    await Promise.all(Object.keys(tilesetMap).map(key => proccessTileset(tilesetMap[key])));
+    const tileInfosMap = await Fs.readJson(Path.join(rootDir, 'data', 'tile-infos.json'));
+    await Promise.all(Object.keys(tilesetMap).map(key => {
+        const tileset = tilesetMap[key];
+        const tileInfos = tileInfosMap[key];
+        tileset.animations = tileInfos && tileInfos.animations || [];
+        return proccessTileset(tileset);
+    }));
 
     await Promise.all(Object.keys(tmxMapMap).map(key => proccessTmxMap(tmxMapMap[key], tilesetMap)));
 })();

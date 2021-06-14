@@ -53,7 +53,7 @@ async function mergeFrames(framePaths, plistData, outAtlasImagePath, algorithm) 
 async function remergeAsync(plistData, inAtlasImagePath, outAtlasImagePath, layoutAlgorithm) {
     const frames = plistData.frames;
     const inAtlasImage = await Jimp.read(inAtlasImagePath);
-    const tempDir = await Fs.mkdtemp('temp_');
+    const tempDir = await Fs.mkdtemp(`temp_${Path.basename(outAtlasImagePath, '.png')}_`);
     const framePaths = frames.map(frame => Path.join(tempDir, frame.name));
     const promises = frames.map((frame, index) => {
         return inAtlasImage.clone()
