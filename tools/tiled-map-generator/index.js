@@ -15,6 +15,34 @@ const rootOutDir = Path.join(__dirname, 'out');
 
 ///////////////
 
+const TERRAIN = {
+	NORMAL: 1,
+	METAL: 2,
+	CARDBOARD: 3,
+	EARTH: 4,
+	GRASS: 5,
+	WATER: 6,
+	WOOD: 7,
+	STONE: 8,
+	METALSOLID: 9,
+	SNOW: 10,
+	ICE: 11,
+	NOTHING: 12,
+	QUICKSAND: 13,
+	SHALLOW_WATER: 14,
+	SAND: 15,
+	COAL: 16,
+	HOLE: 17,
+	LASER: 18,
+	METAL_HOLLOW: 19,
+	SPIDERWEB: 20,
+	HIGHWAY: 21,
+};
+const ID_TO_TERRAIN = {};
+Object.keys(TERRAIN).forEach(name => ID_TO_TERRAIN[TERRAIN[name]] = name);
+
+///////////////
+
 const Layout = require('layout');
 const BinPack = require('bin-pack');
 // pack(items, {inPlace: true});
@@ -133,7 +161,11 @@ async function parseMapFile(filePath, tmxMapMap, tilesetMap) {
 
 async function proccessTileset(tileset) {
     const idSet = tileset.idSet;
-    tileset.animations.forEach(animation => animation.forEach(frame => idSet.add(frame)));
+    const animationMap = {};
+    tileset.animations.forEach(animation => {
+        animation.forEach(frame => idSet.add(frame));
+        animationMap[animation[0]] = animation;
+    });
 
     let oldIds = [];
     for (let id of idSet.values()) {
@@ -142,10 +174,12 @@ async function proccessTileset(tileset) {
     oldIds = oldIds.sort();
 
     const oldIdToNewIdMap = {};
+    const tileInfos = [];
     tileset.oldIdToNewIdMap = oldIdToNewIdMap;
+    tileset.tileInfos = tileInfos;
     tileset.tilecount = oldIds.length;
-    tileset.oldIds = oldIds;
 
+    const terrains = tileset.terrains;
     const tilesize = tileset.tilesize;
     const oldImagePath = Path.join(rootDir, tileset.fullName);
     const oldImageSize = await readImageSize(oldImagePath);
@@ -161,6 +195,12 @@ async function proccessTileset(tileset) {
         frame.y = Math.round(Math.floor((oldId-1) / oldColumns)) * tilesize;
         frame.w = frame.h = tilesize;
         frames.push(frame);
+
+        tileInfos.push({
+            oldId: oldId,
+            terrain: Number(terrains[oldId - 1] || 0),
+            animation: animationMap[oldId],
+        });
     });
 
     const outDir = Utils.getOutDir(rootDir, oldImagePath, rootOutDir);
@@ -195,20 +235,34 @@ async function outputTsxFile(tileset, outTsxPath) {
         .att('height', `${tileset.imageHeight}`)
         .up();
 
-    const animations = tileset.animations;
     const oldIdToNewIdMap = tileset.oldIdToNewIdMap;
-    animations.forEach(animation => {
+    tileset.tileInfos.forEach(tileInfo => {
+        if (!tileInfo.terrain && !tileInfo.animation) {
+            return;
+        }
+
         // tileset's id count from 0
-        const frames = animation.map(oldId => oldIdToNewIdMap[oldId] - 1);
-        const tileXml = xml.ele('tile').att('id', `${frames[0]}`);
+        const tileXml = xml.ele('tile').att('id', `${oldIdToNewIdMap[tileInfo.oldId] - 1}`);
 
-        const animationXml = tileXml.ele('animation');
-        frames.forEach(frame => animationXml.ele('frame')
-            .att('tileid', `${frame}`)
-            .att('duration', `200`)
-            .up());
-        animationXml.up();
+        if (tileInfo.terrain) {
+            tileXml.ele('properties')
+                .ele('property')
+                    .att('name', 'Terrain')
+                    .att('value', `${ID_TO_TERRAIN[tileInfo.terrain]}`)
+                .up()
+            .up();
+        };
 
+        if (tileInfo.animation) {
+            const frames = tileInfo.animation.map(oldId => oldIdToNewIdMap[oldId] - 1);
+            const animationXml = tileXml.ele('animation');
+            frames.forEach(frame => animationXml.ele('frame')
+                .att('tileid', `${frame}`)
+                .att('duration', `200`)
+                .up());
+            animationXml.up();
+        }
+        
         tileXml.up();
     });
 
@@ -259,8 +313,6 @@ async function proccessTmxMap(tmxMap, tilesetMap) {
     await Fs.outputFile(outTmxPath, content, { encoding: 'utf-8' });
 }
 
-let count = 1000;
-
 async function appendLayer(xml, layer, firstGid, oldIdToNewIdMap) {
     const width = layer.width;
     const height = layer.height;
@@ -297,27 +349,6 @@ async function appendLayer(xml, layer, firstGid, oldIdToNewIdMap) {
     .up();
 }
 
-async function proccessTerranFile(tilesetMap) {
-    const terrainPath = Path.join(rootDir, 'data', 'terrain.json');
-    const terrainData = await Fs.readJson(terrainPath);
-
-    const outTerrainData = {};
-    Object.keys(terrainData).forEach(tilesetName => {
-        const tileset = tilesetMap[tilesetName];
-        if (tileset == null) {
-            return;
-        }
-
-        const terrain = terrainData[tilesetName];
-        outTerrainData[tilesetName] = tileset.oldIds.map(oldId => {
-            return Number(terrain[oldId - 1] || 0);
-        });
-    });
-
-    const outTerrainPath = Utils.getOutPath(rootDir, terrainPath, rootOutDir);
-    await Fs.outputJson(outTerrainPath, outTerrainData);
-}
-
 (async () => {
     await Fs.emptyDir(rootOutDir);
 
@@ -330,14 +361,14 @@ async function proccessTerranFile(tilesetMap) {
     await Promise.all(mapFiles.map(file => parseMapFile(file, tmxMapMap, tilesetMap)));
     
     const tileInfosMap = await Fs.readJson(Path.join(rootDir, 'data', 'tile-infos.json'));
+    const terrainMap = await Fs.readJson(Path.join(rootDir, 'data', 'terrain.json'));
     await Promise.all(Object.keys(tilesetMap).map(key => {
         const tileset = tilesetMap[key];
         const tileInfos = tileInfosMap[key];
         tileset.animations = tileInfos && tileInfos.animations || [];
+        tileset.terrains = terrainMap[key] || [];
         return proccessTileset(tileset);
     }));
 
     await Promise.all(Object.keys(tmxMapMap).map(key => proccessTmxMap(tmxMapMap[key], tilesetMap)));
-
-    await proccessTerranFile(tilesetMap);
 })();
