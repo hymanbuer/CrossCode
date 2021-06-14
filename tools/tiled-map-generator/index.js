@@ -144,6 +144,7 @@ async function proccessTileset(tileset) {
     const oldIdToNewIdMap = {};
     tileset.oldIdToNewIdMap = oldIdToNewIdMap;
     tileset.tilecount = oldIds.length;
+    tileset.oldIds = oldIds;
 
     const tilesize = tileset.tilesize;
     const oldImagePath = Path.join(rootDir, tileset.fullName);
@@ -296,6 +297,27 @@ async function appendLayer(xml, layer, firstGid, oldIdToNewIdMap) {
     .up();
 }
 
+async function proccessTerranFile(tilesetMap) {
+    const terrainPath = Path.join(rootDir, 'data', 'terrain.json');
+    const terrainData = await Fs.readJson(terrainPath);
+
+    const outTerrainData = {};
+    Object.keys(terrainData).forEach(tilesetName => {
+        const tileset = tilesetMap[tilesetName];
+        if (tileset == null) {
+            return;
+        }
+
+        const terrain = terrainData[tilesetName];
+        outTerrainData[tilesetName] = tileset.oldIds.map(oldId => {
+            return Number(terrain[oldId - 1] || 0);
+        });
+    });
+
+    const outTerrainPath = Utils.getOutPath(rootDir, terrainPath, rootOutDir);
+    await Fs.outputJson(outTerrainPath, outTerrainData);
+}
+
 (async () => {
     await Fs.emptyDir(rootOutDir);
 
@@ -316,4 +338,6 @@ async function appendLayer(xml, layer, firstGid, oldIdToNewIdMap) {
     }));
 
     await Promise.all(Object.keys(tmxMapMap).map(key => proccessTmxMap(tmxMapMap[key], tilesetMap)));
+
+    await proccessTerranFile(tilesetMap);
 })();
