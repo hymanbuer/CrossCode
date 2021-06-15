@@ -47,3 +47,16 @@ function fixedInteger(value, length) {
     return str.length >= length ? str : '0'.repeat(length - str.length) + str;
 }
 exports.fixedInteger = fixedInteger;
+
+exports.getOrCreateInMap = function (map, key, defaultValueOrCreateFunc) {
+    let value = map[key];
+    if (value == null) {
+        if (typeof defaultValueOrCreateFunc === 'function') {
+            value = map[key] = defaultValueOrCreateFunc();
+        } else {
+            value = map[key] = defaultValueOrCreateFunc;
+        }
+    }
+
+    return value;
+};

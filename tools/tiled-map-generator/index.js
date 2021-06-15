@@ -59,7 +59,7 @@ Layout.addAlgorithm('pack-tileset', {
         items.forEach(item => {
             if (nextX + item.width > maxWidth) {
                 nextX = 0;
-                nextY = nextY + currentLineHeight;
+                nextY += currentLineHeight;
                 currentLineHeight = 0;
             }
 
@@ -71,6 +71,7 @@ Layout.addAlgorithm('pack-tileset', {
                 currentLineHeight = item.height;
             }
         });
+        nextY += currentLineHeight;
 
         return items;
     }
@@ -184,17 +185,17 @@ async function proccessTileset(tileset) {
     const oldImagePath = Path.join(rootDir, tileset.fullName);
     const oldImageSize = await readImageSize(oldImagePath);
     const oldColumns = Math.floor(oldImageSize.width / tilesize);
-    const frames = [];
+    const tileFrames = [];
     oldIds.forEach((oldId, index) => {
         const newId = index + 1;
         oldIdToNewIdMap[oldId] = newId;
 
         const frame = {};
-        frame.name = `tile_${oldId}_${Utils.fixedInteger(newId, 4)}.png`;
+        frame.name = `$tile$_${oldId}_${Utils.fixedInteger(newId, 4)}.png`;
         frame.x = Math.round(((oldId-1) % oldColumns)) * tilesize;
         frame.y = Math.round(Math.floor((oldId-1) / oldColumns)) * tilesize;
         frame.w = frame.h = tilesize;
-        frames.push(frame);
+        tileFrames.push(frame);
 
         tileInfos.push({
             oldId: oldId,
@@ -206,7 +207,7 @@ async function proccessTileset(tileset) {
     const outDir = Utils.getOutDir(rootDir, oldImagePath, rootOutDir);
     const baseName = Path.basename(tileset.fullName, '.png');
     const newImagePath = Path.join(outDir, `${baseName}.png`);
-    const plistData = { frames };
+    const plistData = { frames: tileFrames.concat(tileset.propFrames) };
     await remergeSpritesAsync(plistData, oldImagePath, newImagePath, 'pack-tileset');
 
     tileset.name = baseName;
@@ -349,16 +350,85 @@ async function appendLayer(xml, layer, firstGid, oldIdToNewIdMap) {
     .up();
 }
 
+async function parsePropsFile(filePath, propFramesMap) {
+    const propsData = await Fs.readJson(filePath);
+    propsData.props.forEach(prop => {
+        checkParsePropAnims(prop, propFramesMap) || checkParsePropFix(prop, propFramesMap);
+    });
+}
+
+function checkParsePropAnims(prop, propFramesMap) {
+    // prop.anims.namedSheets ??
+    if (!prop || !prop.anims || !prop.anims.sheet) {
+        return false;
+    }
+
+    const propName = prop.name;
+    const anims = prop.anims;
+    const sheet = anims.sheet;
+    const propFrames = Utils.getOrCreateInMap(propFramesMap, sheet.src, Array);
+
+    if (propFrames.find(frame => frame.propName == propName)) {
+        throw new Error('There is same prop name in save sheet.');
+    }
+
+    let maxFrameIndex = 0;
+    anims.SUB.forEach(subAnim => maxFrameIndex = Math.max(maxFrameIndex, Math.max(...subAnim.frames)));
+    
+    const frameCount = maxFrameIndex + 1;
+    const w = sheet.width;
+    const h = sheet.height;
+    let x = sheet.offX;
+    let y = sheet.offY;
+    for (let i = 0; i < frameCount; i++) {
+        propFrames.push({
+            propName,
+            name: `${propName}_${Utils.fixedInteger(i, 2)}.png`,
+            x, y, w, h,
+        });
+
+        x += w;
+    }
+}
+
+function checkParsePropFix(prop, propFramesMap) {
+    if (!prop || !prop.fix) {
+        return false;
+    }
+
+    const propName = prop.name;
+    const fix = prop.fix;
+    const propFrames = Utils.getOrCreateInMap(propFramesMap, fix.gfx, Array);
+
+    if (propFrames.find(frame => frame.propName == propName)) {
+        throw new Error('There is same prop name in save sheet.');
+    }
+
+    propFrames.push({
+        propName,
+        name: `${propName}.png`,
+        x: fix.x,
+        y: fix.y,
+        w: fix.w,
+        h: fix.h,
+    });
+}
+
 (async () => {
     await Fs.emptyDir(rootOutDir);
 
-    const mapsDir = Path.join(rootDir, 'data', 'maps');
-    const mapFiles = await Utils.getAllFilesInDirWithExt(mapsDir, '.json');
+    const [mapFiles, propsFiles] = await Promise.all([
+        Utils.getAllFilesInDirWithExt(Path.join(rootDir, 'data', 'maps'), '.json'),
+        Utils.getAllFilesInDirWithExt(Path.join(rootDir, 'data', 'props'), '.json'),
+    ]);
 
     const tmxMapMap = {};
     const tilesetMap = {};
-
-    await Promise.all(mapFiles.map(file => parseMapFile(file, tmxMapMap, tilesetMap)));
+    const propFramesMap = {};
+    await Promise.all([
+        Promise.all(mapFiles.map(file => parseMapFile(file, tmxMapMap, tilesetMap))),
+        Promise.all(propsFiles.map(file => parsePropsFile(file, propFramesMap))),
+    ]);
     
     const tileInfosMap = await Fs.readJson(Path.join(rootDir, 'data', 'tile-infos.json'));
     const terrainMap = await Fs.readJson(Path.join(rootDir, 'data', 'terrain.json'));
@@ -367,6 +437,7 @@ async function appendLayer(xml, layer, firstGid, oldIdToNewIdMap) {
         const tileInfos = tileInfosMap[key];
         tileset.animations = tileInfos && tileInfos.animations || [];
         tileset.terrains = terrainMap[key] || [];
+        tileset.propFrames = propFramesMap[key] || [];
         return proccessTileset(tileset);
     }));
 
