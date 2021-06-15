@@ -234,6 +234,19 @@ async function proccessTileset(tileset) {
         });
     });
 
+    const oldImageWidth = oldImageSize.width;
+    const oldImageHeight = oldImageSize.height;
+    tileset.propFrames.forEach(item => {
+        if (item.x + item.w > oldImageWidth) {
+            item.w = Math.max(0, oldImageWidth - item.x);
+            console.log('#### 11', item.name);
+        }
+        if (item.y + item.h > oldImageHeight) {
+            item.h = Math.max(0, oldImageHeight - item.y);
+            console.log('#### 22', item.name);
+        }
+    });
+
     const outDir = Utils.getOutDir(rootDir, oldImagePath, rootOutDir);
     const baseName = Path.basename(tileset.fullName, '.png');
     const newImagePath = Path.join(outDir, `${baseName}.png`);
@@ -380,7 +393,6 @@ async function appendLayer(xml, layer, firstGid, oldIdToNewIdMap) {
     .up();
 }
 
-// TODO: handle the frame size of out image size
 async function parsePropsFile(filePath, propFramesMap) {
     const propsData = await Fs.readJson(filePath);
     propsData.props.forEach(prop => {
