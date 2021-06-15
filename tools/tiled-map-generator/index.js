@@ -11,7 +11,8 @@ const Utils = require('./../utils');
 const remergeSpritesAsync = require('./../sprite-atlas-plist-generator/split-and-merge-sprites').remergeAsync;
 
 const rootDir = __dirname;
-const rootOutDir = Path.join(__dirname, 'out');
+const rootOutDir = Path.join(__dirname, '..', '..', 'assets');
+// const rootOutDir = Path.join(__dirname, 'out');
 
 ///////////////
 
@@ -478,7 +479,7 @@ function checkFixPropFrameSize(item, imageWidth, imageHeight) {
 }
 
 (async () => {
-    await Fs.emptyDir(rootOutDir);
+    // await Fs.emptyDir(rootOutDir);
 
     const [mapFiles, propsFiles] = await Promise.all([
         Utils.getAllFilesInDirWithExt(Path.join(rootDir, 'data', 'maps'), '.json'),
