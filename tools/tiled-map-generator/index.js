@@ -41,37 +41,67 @@ const TERRAIN = {
 const ID_TO_TERRAIN = {};
 Object.keys(TERRAIN).forEach(name => ID_TO_TERRAIN[TERRAIN[name]] = name);
 
+const TILE_PREFIX = '$tile$';
+
 ///////////////
 
 const Layout = require('layout');
-const BinPack = require('bin-pack');
-// pack(items, {inPlace: true});
+const binPack = require('bin-pack');
+
+function placeTileItemsInPlace(items, maxWidth) {
+    maxWidth = maxWidth || 1024;
+
+    let currentLineHeight = 0;
+    let nextX = 0;
+    let nextY = 0;
+    let maxX = 0;
+    items.forEach(item => {
+        if (nextX + item.width > maxWidth) {
+            nextX = 0;
+            nextY += currentLineHeight;
+            currentLineHeight = 0;
+        }
+
+        item.x = nextX;
+        item.y = nextY;
+
+        nextX += item.width;
+        if (item.height > currentLineHeight) {
+            currentLineHeight = item.height;
+        }
+
+        if (nextX > maxX) {
+            maxX = nextX;
+        }
+    });
+
+    return {
+        maxX: maxX,
+        maxY: nextY + currentLineHeight,
+    };
+}
+
 Layout.addAlgorithm('pack-tileset', {
     sort(items) {
         return items;
     },
 
     placeItems(items) {
-        const maxWidth = 1024;
-        let currentLineHeight = 0;
-        let nextX = 0;
-        let nextY = 0;
+        const tileItems = [];
+        const propItems = [];
         items.forEach(item => {
-            if (nextX + item.width > maxWidth) {
-                nextX = 0;
-                nextY += currentLineHeight;
-                currentLineHeight = 0;
-            }
-
-            item.x = nextX;
-            item.y = nextY;
-
-            nextX += item.width;
-            if (item.height > currentLineHeight) {
-                currentLineHeight = item.height;
-            }
+            const targetItems = item.meta.img._filepath.indexOf(TILE_PREFIX) >= 0 ? tileItems : propItems;
+            targetItems.push(item);
         });
-        nextY += currentLineHeight;
+        
+        let maxWidth = 1024;
+        if (propItems.length) {
+            const propSheetSize = binPack(propItems, { inPlace: true });
+            maxWidth = propSheetSize.width;
+        }
+
+        const { maxX, maxY } = placeTileItemsInPlace(tileItems, maxWidth);
+        propItems.forEach(item => item.y += maxY);
 
         return items;
     }
@@ -191,7 +221,7 @@ async function proccessTileset(tileset) {
         oldIdToNewIdMap[oldId] = newId;
 
         const frame = {};
-        frame.name = `$tile$_${oldId}_${Utils.fixedInteger(newId, 4)}.png`;
+        frame.name = `${TILE_PREFIX}_${oldId}_${Utils.fixedInteger(newId, 4)}.png`;
         frame.x = Math.round(((oldId-1) % oldColumns)) * tilesize;
         frame.y = Math.round(Math.floor((oldId-1) / oldColumns)) * tilesize;
         frame.w = frame.h = tilesize;
@@ -350,6 +380,7 @@ async function appendLayer(xml, layer, firstGid, oldIdToNewIdMap) {
     .up();
 }
 
+// TODO: handle the frame size of out image size
 async function parsePropsFile(filePath, propFramesMap) {
     const propsData = await Fs.readJson(filePath);
     propsData.props.forEach(prop => {
@@ -392,7 +423,7 @@ function checkParsePropAnims(prop, propFramesMap) {
 }
 
 function checkParsePropFix(prop, propFramesMap) {
-    if (!prop || !prop.fix) {
+    if (!prop || !prop.fix || prop.fix.flipX || prop.fix.flipY) {
         return false;
     }
 
