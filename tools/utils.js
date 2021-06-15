@@ -48,11 +48,11 @@ function fixedInteger(value, length) {
 }
 exports.fixedInteger = fixedInteger;
 
-exports.getOrCreateInMap = function (map, key, defaultValueOrCreateFunc) {
+exports.getOrCreateInMapAsync = async function (map, key, defaultValueOrCreateFunc) {
     let value = map[key];
     if (value == null) {
         if (typeof defaultValueOrCreateFunc === 'function') {
-            value = map[key] = defaultValueOrCreateFunc();
+            value = map[key] = await defaultValueOrCreateFunc(key);
         } else {
             value = map[key] = defaultValueOrCreateFunc;
         }

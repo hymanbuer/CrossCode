@@ -42,6 +42,7 @@ const ID_TO_TERRAIN = {};
 Object.keys(TERRAIN).forEach(name => ID_TO_TERRAIN[TERRAIN[name]] = name);
 
 const TILE_PREFIX = '$tile$';
+const MAX_SHEET_SIZE = 1024;
 
 ///////////////
 
@@ -49,7 +50,7 @@ const Layout = require('layout');
 const binPack = require('bin-pack');
 
 function placeTileItemsInPlace(items, maxWidth) {
-    maxWidth = maxWidth || 1024;
+    maxWidth = maxWidth || MAX_SHEET_SIZE;
 
     let currentLineHeight = 0;
     let nextX = 0;
@@ -94,13 +95,18 @@ Layout.addAlgorithm('pack-tileset', {
             targetItems.push(item);
         });
         
-        let maxWidth = 1024;
+        let maxWidth = MAX_SHEET_SIZE;
+        let propSheetSize = null;
         if (propItems.length) {
-            const propSheetSize = binPack(propItems, { inPlace: true });
-            maxWidth = propSheetSize.width;
+            propSheetSize = binPack(propItems, { inPlace: true });
+            maxWidth = Math.min(maxWidth, propSheetSize.width);
         }
 
         const { maxX, maxY } = placeTileItemsInPlace(tileItems, maxWidth);
+        if (propItems.length && maxY + propSheetSize.height > MAX_SHEET_SIZE) {
+            placeTileItemsInPlace(tileItems, MAX_SHEET_SIZE);
+        }
+
         propItems.forEach(item => item.y += maxY);
 
         return items;
@@ -232,19 +238,6 @@ async function proccessTileset(tileset) {
             terrain: Number(terrains[oldId - 1] || 0),
             animation: animationMap[oldId],
         });
-    });
-
-    const oldImageWidth = oldImageSize.width;
-    const oldImageHeight = oldImageSize.height;
-    tileset.propFrames.forEach(item => {
-        if (item.x + item.w > oldImageWidth) {
-            item.w = Math.max(0, oldImageWidth - item.x);
-            console.log('#### 11', item.name);
-        }
-        if (item.y + item.h > oldImageHeight) {
-            item.h = Math.max(0, oldImageHeight - item.y);
-            console.log('#### 22', item.name);
-        }
     });
 
     const outDir = Utils.getOutDir(rootDir, oldImagePath, rootOutDir);
@@ -393,14 +386,17 @@ async function appendLayer(xml, layer, firstGid, oldIdToNewIdMap) {
     .up();
 }
 
-async function parsePropsFile(filePath, propFramesMap) {
+async function parsePropsFile(filePath, propSheetMap) {
     const propsData = await Fs.readJson(filePath);
-    propsData.props.forEach(prop => {
-        checkParsePropAnims(prop, propFramesMap) || checkParsePropFix(prop, propFramesMap);
-    });
+    const props = propsData.props;
+    for (let i = 0; i < props.length; i++) {
+        const prop = props[i];
+        await checkParsePropAnims(prop, propSheetMap);
+        await checkParsePropFix(prop, propSheetMap);
+    }
 }
 
-function checkParsePropAnims(prop, propFramesMap) {
+async function checkParsePropAnims(prop, propSheetMap) {
     // prop.anims.namedSheets ??
     if (!prop || !prop.anims || !prop.anims.sheet) {
         return false;
@@ -409,7 +405,8 @@ function checkParsePropAnims(prop, propFramesMap) {
     const propName = prop.name;
     const anims = prop.anims;
     const sheet = anims.sheet;
-    const propFrames = Utils.getOrCreateInMap(propFramesMap, sheet.src, Array);
+    const propSheet = await Utils.getOrCreateInMapAsync(propSheetMap, sheet.src, createPropSheet);
+    const propFrames = propSheet.frames;
 
     if (propFrames.find(frame => frame.propName == propName)) {
         throw new Error('There is same prop name in save sheet.');
@@ -421,40 +418,63 @@ function checkParsePropAnims(prop, propFramesMap) {
     const frameCount = maxFrameIndex + 1;
     const w = sheet.width;
     const h = sheet.height;
-    let x = sheet.offX;
-    let y = sheet.offY;
+    const offX = sheet.offX;
+    const offY = sheet.offY;
+    const xCount = sheet.xCount;
+    const sheetWidth = xCount ? xCount * w : propSheet.width - offX;
     for (let i = 0; i < frameCount; i++) {
         propFrames.push({
             propName,
             name: `${propName}_${Utils.fixedInteger(i, 2)}.png`,
-            x, y, w, h,
+            x: offX + (Math.floor(i * w) % sheetWidth),
+            y: offY + Math.floor((i * w) / sheetWidth) * h,
+            w, h,
         });
-
-        x += w;
     }
 }
 
-function checkParsePropFix(prop, propFramesMap) {
+async function checkParsePropFix(prop, propSheetMap) {
     if (!prop || !prop.fix || prop.fix.flipX || prop.fix.flipY) {
         return false;
     }
 
     const propName = prop.name;
     const fix = prop.fix;
-    const propFrames = Utils.getOrCreateInMap(propFramesMap, fix.gfx, Array);
+    const propSheet = await Utils.getOrCreateInMapAsync(propSheetMap, fix.gfx, createPropSheet);
+    const propFrames = propSheet.frames;
 
     if (propFrames.find(frame => frame.propName == propName)) {
         throw new Error('There is same prop name in save sheet.');
     }
 
-    propFrames.push({
+    const propFrame = {
         propName,
         name: `${propName}.png`,
         x: fix.x,
         y: fix.y,
         w: fix.w,
         h: fix.h,
-    });
+    };
+    checkFixPropFrameSize(propFrame, propSheet.width, propSheet.height)
+    propFrames.push(propFrame);
+}
+
+async function createPropSheet(sheetName) {
+    const imageSize = await readImageSize(Path.join(rootDir, sheetName));
+    return {
+        width: imageSize.width,
+        height: imageSize.height,
+        frames: [],
+    };
+}
+
+function checkFixPropFrameSize(item, imageWidth, imageHeight) {
+    if (item.x + item.w > imageWidth) {
+        item.w = Math.max(0, imageWidth - item.x);
+    }
+    if (item.y + item.h > imageHeight) {
+        item.h = Math.max(0, imageHeight - item.y);
+    }
 }
 
 (async () => {
@@ -467,10 +487,10 @@ function checkParsePropFix(prop, propFramesMap) {
 
     const tmxMapMap = {};
     const tilesetMap = {};
-    const propFramesMap = {};
+    const propSheetMap = {};
     await Promise.all([
         Promise.all(mapFiles.map(file => parseMapFile(file, tmxMapMap, tilesetMap))),
-        Promise.all(propsFiles.map(file => parsePropsFile(file, propFramesMap))),
+        Promise.all(propsFiles.map(file => parsePropsFile(file, propSheetMap))),
     ]);
     
     const tileInfosMap = await Fs.readJson(Path.join(rootDir, 'data', 'tile-infos.json'));
@@ -478,9 +498,10 @@ function checkParsePropFix(prop, propFramesMap) {
     await Promise.all(Object.keys(tilesetMap).map(key => {
         const tileset = tilesetMap[key];
         const tileInfos = tileInfosMap[key];
+        const propSheet = propSheetMap[key];
         tileset.animations = tileInfos && tileInfos.animations || [];
         tileset.terrains = terrainMap[key] || [];
-        tileset.propFrames = propFramesMap[key] || [];
+        tileset.propFrames = propSheet && propSheet.frames || [];
         return proccessTileset(tileset);
     }));
 
