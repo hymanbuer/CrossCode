@@ -316,7 +316,7 @@ async function outputTsxFile(tileset, outTsxPath) {
 
 async function proccessTmxMap(tmxMap, tilesetMap) {
     const xml = XmlBuilder.create('map', { encoding: 'utf-8' })
-        .att('version', '1.4')
+        .att('version', '1.0')
         .att('orientation', 'orthogonal')
         .att('renderorder', 'right-down')
         .att('width', `${tmxMap.width}`)
