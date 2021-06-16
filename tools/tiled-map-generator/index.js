@@ -8,11 +8,10 @@ const Jimp = require('jimp');
 const Walk = require('walk');
 
 const Utils = require('./../utils');
-const remergeSpritesAsync = require('./../sprite-atlas-plist-generator/split-and-merge-sprites').remergeAsync;
 
 const rootDir = __dirname;
-const rootOutDir = Path.join(__dirname, '..', '..', 'assets');
-// const rootOutDir = Path.join(__dirname, 'out');
+// const rootOutDir = Path.join(__dirname, '..', '..', 'assets');
+const rootOutDir = Path.join(__dirname, 'out');
 
 ///////////////
 
@@ -245,7 +244,7 @@ async function proccessTileset(tileset) {
     const baseName = Path.basename(tileset.fullName, '.png');
     const newImagePath = Path.join(outDir, `${baseName}.png`);
     const plistData = { frames: tileFrames.concat(tileset.propFrames) };
-    await remergeSpritesAsync(plistData, oldImagePath, newImagePath, 'pack-tileset');
+    await Utils.remergeAsync(plistData, oldImagePath, newImagePath, 'pack-tileset');
 
     tileset.name = baseName;
     tileset.imageWidth = plistData.textureWidth;
@@ -479,7 +478,7 @@ function checkFixPropFrameSize(item, imageWidth, imageHeight) {
 }
 
 (async () => {
-    // await Fs.emptyDir(rootOutDir);
+    await Fs.emptyDir(rootOutDir);
 
     const [mapFiles, propsFiles] = await Promise.all([
         Utils.getAllFilesInDirWithExt(Path.join(rootDir, 'data', 'maps'), '.json'),

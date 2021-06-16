@@ -4,8 +4,8 @@ const Path = require('path');
 const Walk = require('walk');
 
 const parseFontMetrics = require('./parse-font-metrics').parse;
-const remergeSpritesAsync = require('./../sprite-atlas-plist-generator/split-and-merge-sprites').remergeAsync;
 const writeBitmapFont = require('./bitmap-font-writer').write;
+const Utils = require('../utils');
 
 const rootDir = __dirname;
 const outDir = Path.join(__dirname, '..', '..', 'assets');
@@ -26,7 +26,7 @@ async function handleFile(fontDataPath) {
     const fontData = await Fs.readJson(fontDataPath);
     const plistData = await parseFontMetrics(originImagePath, fontData.lineHeight);
 
-    await remergeSpritesAsync(plistData, originImagePath, fntImagePath);
+    await Utils.remergeAsync(plistData, originImagePath, fntImagePath);
 
     const content = writeBitmapFont(fontData, plistData);
     await Fs.writeFile(fntDataPath, content, { encoding: 'utf-8' });
