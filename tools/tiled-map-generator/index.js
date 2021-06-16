@@ -175,9 +175,16 @@ async function parseMapFile(filePath, tmxMapMap, tilesetMap) {
         layers: [],
     };
 
+    const nameCached = {};
     mapData.layer.forEach(layer => {
         const tileset = getOrCreateTileset(tilesetMap, layer.tilesetName, layer.tilesize);
         addAllTileIdsInLayer(tileset, layer.width, layer.height, layer.data);
+
+        // protect from same name
+        if (nameCached[layer.name]) {
+            layer.name = layer.name + layer.id;
+        }
+        nameCached[layer.name] = true;
 
         tmxMap.layers.push({
             id: layer.id,
