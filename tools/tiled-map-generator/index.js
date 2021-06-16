@@ -181,7 +181,7 @@ async function parseMapFile(filePath, tmxMapMap, tilesetMap) {
         addAllTileIdsInLayer(tileset, layer.width, layer.height, layer.data);
 
         // protect from same name
-        if (nameCached[layer.name]) {
+        if (layer.name == 'Coll' || nameCached[layer.name]) {
             layer.name = layer.name + layer.id;
         }
         nameCached[layer.name] = true;
