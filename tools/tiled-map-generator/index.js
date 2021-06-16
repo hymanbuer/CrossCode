@@ -240,20 +240,27 @@ async function proccessTileset(tileset) {
         });
     });
 
+    const propSheet = tileset.propSheet;
     const outDir = Utils.getOutDir(rootDir, oldImagePath, rootOutDir);
     const baseName = Path.basename(tileset.fullName, '.png');
     const newImagePath = Path.join(outDir, `${baseName}.png`);
-    const plistData = { frames: tileFrames.concat(tileset.propFrames) };
+    const plistData = { frames: tileFrames.concat(propSheet.frames) };
     await Utils.remergeAsync(plistData, oldImagePath, newImagePath, 'pack-tileset');
 
+    propSheet.textureFileName = `${baseName}.png`;
     tileset.name = baseName;
-    tileset.imageWidth = plistData.textureWidth;
-    tileset.imageHeight = plistData.textureHeight;
+    tileset.imageWidth = propSheet.textureWidth = plistData.textureWidth;
+    tileset.imageHeight = propSheet.textureHeight = plistData.textureHeight;
     tileset.sourceName = Path.basename(tileset.fullName);
     tileset.columns = Math.floor(plistData.textureWidth / (tilesize + 1));
 
     const outTsxPath = Path.join(outDir, `${baseName}.tsx`);
     await outputTsxFile(tileset, outTsxPath);
+
+    if (propSheet.frames.length > 0) {
+        const outPlistPath = Path.join(outDir, `${baseName}.plist`);
+        await Utils.writeAtlasPlistFile(propSheet, outPlistPath);
+    }
 }
 
 async function outputTsxFile(tileset, outTsxPath) {
@@ -501,7 +508,7 @@ function checkFixPropFrameSize(item, imageWidth, imageHeight) {
         const propSheet = propSheetMap[key];
         tileset.animations = tileInfos && tileInfos.animations || [];
         tileset.terrains = terrainMap[key] || [];
-        tileset.propFrames = propSheet && propSheet.frames || [];
+        tileset.propSheet = propSheet || { frames: [] };
         return proccessTileset(tileset);
     }));
 

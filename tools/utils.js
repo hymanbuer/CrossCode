@@ -7,6 +7,8 @@ const Jimp = require('jimp');
 const Spritesmith = require('spritesmith');
 const Sharp = require('sharp');
 
+const Plist = require('plist');
+
 exports.getAllFilesInDirWithExt = async function (dir, targetExtName) {
     return new Promise((resolve, reject) => {
         const files = [];
@@ -32,12 +34,12 @@ exports.getOutDir = function (rootInDir, inPath, rootOutDir) {
 }
 
 exports.getOutPath = function (rootInDir, inPath, rootOutDir) {
-    const outDir = getOutDir(rootInDir, inPath, rootOutDir)
+    const outDir = exports.getOutDir(rootInDir, inPath, rootOutDir)
     return Path.join(outDir, Path.basename(inPath));
 }
 
 exports.getOutPathWithDiffExt = function (rootInDir, inPath, rootOutDir, inExt, outExt) {
-    const outDir = getOutDir(rootInDir, inPath, rootOutDir)
+    const outDir = exports.getOutDir(rootInDir, inPath, rootOutDir)
     const baseName = Path.basename(inPath, inExt);
     return Path.join(outDir, `${baseName}${outExt}`);
 }
@@ -126,3 +128,39 @@ exports.remergeAsync = async function (plistData, inAtlasImagePath, outAtlasImag
 }
 
 ///////////////////
+
+exports.writeAtlasPlistFile = async function (plistData, plistDataPath) {
+    const textureFileName = plistData.textureFileName;
+    const textureSize = `{${plistData.textureWidth},${plistData.textureHeight}}`;
+    const result = {
+        frames: {},
+        metadata: {
+            format: 3,
+            pixelFormat: 'RGBA8888',
+            premultiplyAlpha: false,
+            realTextureFileName: textureFileName,
+            size: textureSize,
+            smartupdate: '$TexturePacker:SmartUpdate:9c768fe6828cb6c075550d20fcd572e4:4d9c4c023ac2e79911a281ae6c21e22a:e75714c0871c497b76d71a94e9da90fb$',
+            textureFileName: textureFileName
+        }
+    };
+
+    const frames = result.frames;
+    const sprites = plistData.frames;
+    sprites.forEach(s => {
+        const offset = `{${s.x},${s.y}}`;
+        const size = `{${s.w},${s.h}}`;
+        frames[s.name] = {
+            spriteOffset: '{0,0}',
+            spriteSize: size,
+            spriteSourceSize: size,
+            textureRect: `{${offset},${size}}`,
+            textureRotated: false
+        };
+    });
+
+    const xml = Plist.build(result);
+    return Fs.writeFile(plistDataPath, xml, { encoding: 'utf-8' });
+}
+
+/////////////////

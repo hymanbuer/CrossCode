@@ -4,7 +4,6 @@ const Path = require('path');
 const Walk = require('walk');
 
 const parseAtlasData = require('./parse-sprite-atlas-data').parse;
-const writePlistData = require('./sprites-plist-writer').write;
 const Utils = require('../utils');
 
 const rootDir = __dirname;
@@ -26,8 +25,7 @@ async function handleFile(atlasDataPath) {
     const plistData = await parseAtlasData(atlasDataPath);
     await Utils.remergeAsync(plistData, atlasImagePath, plistImagePath);
 
-    const xml = writePlistData(plistData);
-    await Fs.writeFile(plistDataPath, xml, { encoding: 'utf-8' });
+    await Utils.writeAtlasPlistFile(plistData, plistDataPath);
 }
 
 (async () => {
